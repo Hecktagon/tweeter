@@ -8,6 +8,7 @@ import AuthenticationFormLayout from "../AuthenticationFormLayout";
 import { AuthToken, FakeData, User } from "tweeter-shared";
 import { ToastActionsContext } from "../../toaster/ToastContexts";
 import { ToastType } from "../../toaster/Toast";
+import AuthenticationFields from "../authenticationFields/AuthenticationFields";
 
 interface Props {
   originalUrl?: string;
@@ -74,7 +75,8 @@ const Login = (props: Props) => {
   const inputFieldFactory = () => {
     return (
       <>
-        <div className="form-floating">
+        <AuthenticationFields onEnterFunction={loginOnEnter} passwordDivClassName="form-floating mb-3" passwordInputClassName="form-control bottom" alias={alias} setAlias={setAlias} password={password} setPassword={setPassword}/>
+        {/* <div className="form-floating">
           <input
             type="text"
             className="form-control"
@@ -96,7 +98,7 @@ const Login = (props: Props) => {
             onChange={(event) => setPassword(event.target.value)}
           />
           <label htmlFor="passwordInput">Password</label>
-        </div>
+        </div> */}
       </>
     );
   };

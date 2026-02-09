@@ -39,26 +39,6 @@ const App = () => {
 const AuthenticatedRoutes = () => {
   const { displayedUser } = useUserInfo();
 
-  const loadMoreFollowers = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: User | null
-  ): Promise<[User[], boolean]> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
-  };
-
-  const loadMoreFollowees = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: User | null
-  ): Promise<[User[], boolean]> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
-  };
-
   const loadMoreFeedItems = async (
     authToken: AuthToken,
     userAlias: string,
@@ -83,8 +63,8 @@ const AuthenticatedRoutes = () => {
     <Routes>
       <Route element={<MainLayout />}>
         <Route index element={<Navigate to={`/feed/${displayedUser!.alias}`} />} />
-        <Route path="feed/:displayedUser" element={<StatusItemScroller key={`feed-${displayedUser!.alias}`} itemDescription="feed" featureUrl="/feed" loadItemsFunction={loadMoreFeedItems}/>} />
-        <Route path="story/:displayedUser" element={<StatusItemScroller key={`story-${displayedUser!.alias}`} itemDescription="story" featureUrl="/story" loadItemsFunction={loadMoreStoryItems}/>} />
+        <Route path="feed/:displayedUser" element={<StatusItemScroller key={`feed-${displayedUser!.alias}`} itemDescription="feed" featureUrl="/feed" loadItemsFunction={loadMoreFeedItems} />} />
+        <Route path="story/:displayedUser" element={<StatusItemScroller key={`story-${displayedUser!.alias}`} itemDescription="story" featureUrl="/story" loadItemsFunction={loadMoreStoryItems} />} />
         <Route path="followees/:displayedUser" element={<UserItemScroller key={`followees-${displayedUser!.alias}`} itemDescription="followees" featureUrl="/followees" loadItemsFunction={loadMoreFollowees} />} />
         <Route path="followers/:displayedUser" element={<UserItemScroller key={`followers-${displayedUser!.alias}`} itemDescription="followers" featureUrl="/followers" loadItemsFunction={loadMoreFollowers} />} />
         <Route path="logout" element={<Navigate to="/login" />} />

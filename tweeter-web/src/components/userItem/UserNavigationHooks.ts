@@ -11,6 +11,8 @@ interface useUserNavInputs {
 }
 
 export const useUserNavigation = (props: useUserNavInputs) => {
+    //TODO: move hooks into here.
+
     const navigateToUser = async (event: React.MouseEvent): Promise<void> => {
         event.preventDefault();
 

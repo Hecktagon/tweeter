@@ -1,17 +1,17 @@
-import { NavigateFunction } from "react-router-dom";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 import { AuthToken, User, FakeData } from "tweeter-shared";
+import { useMessageActions } from "../toaster/MessageHooks";
+import { useUserInfo, useUserInfoActions } from "../userInfo/UserInfoHooks";
 
 interface useUserNavInputs {
-    authToken: AuthToken | null;
-    displayedUser: User | null;
-    setDisplayedUser: (user: User) => void;
-    navigate: NavigateFunction;
     featurePath: string;
-    displayErrorMessage: (message: string, bootstrapClasses?: string | undefined) => string
 }
 
 export const useUserNavigation = (props: useUserNavInputs) => {
-    //TODO: move hooks into here.
+    const { displayErrorMessage } = useMessageActions();
+    const { displayedUser, authToken } = useUserInfo();
+    const { setDisplayedUser } = useUserInfoActions();
+    const navigate = useNavigate();
 
     const navigateToUser = async (event: React.MouseEvent): Promise<void> => {
         event.preventDefault();
@@ -19,16 +19,16 @@ export const useUserNavigation = (props: useUserNavInputs) => {
         try {
             const alias = extractAlias(event.target.toString());
 
-            const toUser = await getUser(props.authToken!, alias);
+            const toUser = await getUser(authToken!, alias);
 
             if (toUser) {
-                if (!toUser.equals(props.displayedUser!)) {
-                    props.setDisplayedUser(toUser);
-                    props.navigate(`${props.featurePath}/${toUser.alias}`);
+                if (!toUser.equals(displayedUser!)) {
+                    setDisplayedUser(toUser);
+                    navigate(`${props.featurePath}/${toUser.alias}`);
                 }
             }
         } catch (error) {
-            props.displayErrorMessage(
+            displayErrorMessage(
                 `Failed to get user because of exception: ${error}`,
             );
         }
@@ -47,5 +47,5 @@ export const useUserNavigation = (props: useUserNavInputs) => {
         return FakeData.instance.findUserByAlias(alias);
     };
 
-    return{ navigateToUser };
+    return { navigateToUser };
 }

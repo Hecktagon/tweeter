@@ -1,26 +1,16 @@
-import { AuthToken, User, FakeData } from "tweeter-shared";
+import { AuthToken } from "tweeter-shared";
 import { FollowService } from "../model.service/FollowService";
-import { UserService } from "../model.service/UserService";
 import { UserItemPresenter, UserItemView } from "./UserItemPresenter";
 
 export const PAGE_SIZE = 10;
 
 export class FolloweePresenter  extends UserItemPresenter{
     private service: FollowService;
-    private userService: UserService;
 
     public constructor(view: UserItemView) {
         super(view)
         this.service = new FollowService();
-        this.userService = new UserService;
     }
-
-    public async getUser(
-        authToken: AuthToken,
-        alias: string
-    ): Promise<User | null> {
-        return this.userService.getUser(authToken, alias)
-    };
 
     public async loadMoreItems(authToken: AuthToken, userAlias: string) {
         try {
@@ -32,7 +22,7 @@ export class FolloweePresenter  extends UserItemPresenter{
             );
 
             this.hasMoreItems = hasMore;
-            this.lastItem = newItems[newItems.length - 1];
+            this.lastItem = newItems.length > 0 ? newItems[newItems.length - 1] : null;
             this.view.addItems(newItems);
         } catch (error) {
             this.view.displayErrorMessage(

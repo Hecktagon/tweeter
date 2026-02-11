@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { User } from "tweeter-shared";
 import { useUserNavigation } from "./UserNavigationHooks";
+import { UserNavigationHookView, UserNavigationHookPresenter } from "../../presenter/UserNavigationHookPresenter";
 
 interface Props {
   user: User;
@@ -9,7 +10,8 @@ interface Props {
 
 const UserItem = (props: Props) => {
   const { navigateToUser } = useUserNavigation({
-    featurePath: props.featurePath
+    featurePath: props.featurePath,
+        presenterFactory: (view: UserNavigationHookView) => new UserNavigationHookPresenter(view)
   });
 
   return (

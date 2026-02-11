@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Post from "./Post";
 import { Status } from "tweeter-shared";
 import { useUserNavigation } from "../userItem/UserNavigationHooks";
+import { UserNavigationHookView, UserNavigationHookPresenter } from "../../presenter/UserNavigationHookPresenter";
 
 interface Props {
     status: Status;
@@ -11,6 +12,7 @@ interface Props {
 const StatusItem = (props: Props) => {
     const { navigateToUser } = useUserNavigation({
         featurePath: props.featureUrl,
+        presenterFactory: (view: UserNavigationHookView) => new UserNavigationHookPresenter(view)
     });
 
     return (

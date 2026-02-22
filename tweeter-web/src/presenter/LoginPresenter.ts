@@ -1,19 +1,21 @@
 import { NavigateFunction } from "react-router-dom";
 import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../model.service/UserService";
-import { Presenter, View } from "./Presenter";
 
-export interface LoginView extends View {
+export interface LoginView {
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
     updateUserInfo: (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean) => void
     navigate: NavigateFunction
+    displayErrorMessage: (message: string) => void
 }
 
-export class LoginPresenter extends Presenter<LoginView> {
-    private userService: UserService = new UserService();
+export class LoginPresenter {
+    private userService: UserService;
+    private _view: LoginView
 
     public constructor(view: LoginView) {
-        super(view)
+        this.userService = new UserService
+        this._view = view
     }
 
     public attemptLogin(key: string, alias: string, password: string, rememberMe: boolean, originalUrl: string): void {
@@ -28,22 +30,23 @@ export class LoginPresenter extends Presenter<LoginView> {
 
     public async doLogin(alias: string, password: string, rememberMe: boolean, originalUrl: string) {
         try {
-            this.view.setIsLoading(true);
-
-            await this.doFailureReportingOperation(async () => {
+            this._view.setIsLoading(true);
 
             const [user, authToken] = await this.userService.login(alias, password);
 
-            this.view.updateUserInfo(user, user, authToken, rememberMe);
+            this._view.updateUserInfo(user, user, authToken, rememberMe);
 
             if (!!originalUrl) {
-                this.view.navigate(originalUrl);
+                this._view.navigate(originalUrl);
             } else {
-                this.view.navigate(`/feed/${user.alias}`);
+                this._view.navigate(`/feed/${user.alias}`);
             }
-        }, "log user in")
+        } catch (error) {
+            this._view.displayErrorMessage(
+                `Failed to log user in because of exception: ${error}`
+            );
         } finally {
-            this.view.setIsLoading(false);
+            this._view.setIsLoading(false);
         }
     };
 }

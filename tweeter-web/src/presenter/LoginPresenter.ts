@@ -1,21 +1,19 @@
 import { NavigateFunction } from "react-router-dom";
 import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../model.service/UserService";
+import { Presenter, View } from "./Presenter";
 
-export interface LoginView {
+export interface LoginView extends View {
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
     updateUserInfo: (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean) => void
     navigate: NavigateFunction
-    displayErrorMessage: (message: string) => void
 }
 
-export class LoginPresenter {
-    private userService: UserService;
-    private _view: LoginView
+export class LoginPresenter extends Presenter<LoginView> {
+    private userService: UserService = new UserService();
 
     public constructor(view: LoginView) {
-        this.userService = new UserService
-        this._view = view
+        super(view)
     }
 
     public attemptLogin(key: string, alias: string, password: string, rememberMe: boolean, originalUrl: string): void {
@@ -30,23 +28,22 @@ export class LoginPresenter {
 
     public async doLogin(alias: string, password: string, rememberMe: boolean, originalUrl: string) {
         try {
-            this._view.setIsLoading(true);
+            this.view.setIsLoading(true);
+
+            await this.doFailureReportingOperation(async () => {
 
             const [user, authToken] = await this.userService.login(alias, password);
 
-            this._view.updateUserInfo(user, user, authToken, rememberMe);
+            this.view.updateUserInfo(user, user, authToken, rememberMe);
 
             if (!!originalUrl) {
-                this._view.navigate(originalUrl);
+                this.view.navigate(originalUrl);
             } else {
-                this._view.navigate(`/feed/${user.alias}`);
+                this.view.navigate(`/feed/${user.alias}`);
             }
-        } catch (error) {
-            this._view.displayErrorMessage(
-                `Failed to log user in because of exception: ${error}`
-            );
+        }, "log user in")
         } finally {
-            this._view.setIsLoading(false);
+            this.view.setIsLoading(false);
         }
     };
 }

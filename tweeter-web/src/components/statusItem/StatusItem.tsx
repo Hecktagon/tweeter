@@ -6,12 +6,12 @@ import { UserNavigationHookView, UserNavigationHookPresenter } from "../../prese
 
 interface Props {
     status: Status;
-    featureUrl: string
+    featurePath: string
 }
 
 const StatusItem = (props: Props) => {
     const { navigateToUser } = useUserNavigation({
-        featurePath: props.featureUrl,
+        featurePath: props.featurePath,
         presenterFactory: (view: UserNavigationHookView) => new UserNavigationHookPresenter(view)
     });
 
@@ -34,7 +34,7 @@ const StatusItem = (props: Props) => {
                             </b>{" "}
                             -{" "}
                             <Link
-                                to={`${props.featureUrl}/${props.status.user.alias}`}
+                                to={`${props.featurePath}/${props.status.user.alias}`}
                                 onClick={navigateToUser}
                             >
                                 {props.status.user.alias}
@@ -42,7 +42,7 @@ const StatusItem = (props: Props) => {
                         </h2>
                         {props.status.formattedDate}
                         <br />
-                        <Post status={props.status} featurePath={`${props.featureUrl}`} />
+                        <Post status={props.status} featurePath={`${props.featurePath}`} />
                     </div>
                 </div>
             </div>

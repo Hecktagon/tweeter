@@ -45,8 +45,7 @@ export class LoginPresenter {
             this._view.displayErrorMessage(
                 `Failed to log user in because of exception: ${error}`
             );
-        } finally {
             this._view.setIsLoading(false);
-        }
-    };
+        };
+    }
 }

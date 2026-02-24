@@ -25,7 +25,7 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
         currentUser: User,
         displayedUser: User
     ) {
-        this.doFailureReportingOperation(async () => {
+        await this.doFailureReportingOperation(async () => {
             if (currentUser === displayedUser) {
                 this.view.setIsFollower(false);
             } else {
@@ -40,7 +40,7 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
         authToken: AuthToken,
         displayedUser: User
     ) {
-        this.doFailureReportingOperation(async () => {
+        await this.doFailureReportingOperation(async () => {
             this.view.setFolloweeCount(await this.followService.getFolloweeCount(authToken, displayedUser));
         }, "get followees count")
     };
@@ -49,7 +49,7 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
         authToken: AuthToken,
         displayedUser: User
     ) {
-        this.doFailureReportingOperation(async () => {
+        await this.doFailureReportingOperation(async () => {
             this.view.setFollowerCount(await this.followService.getFollowerCount(authToken, displayedUser));
         }, "get followers count")
     };
@@ -64,47 +64,35 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
         return segments.length > 1 ? segments[0] : "/";
     };
 
-    public async followDisplayedUser(displayedUser: User, authToken: AuthToken): Promise<void> {
-        var followingUserToast = "";
-        this.doFailureReportingOperation(async () => {
+    private async updateFollowing(displayedUser: User, followActionText: string, isFollower: boolean, operationDescription: string, doFollowAction: () => Promise<[number, number]>) {
+        var followActionUserToast = "";
+        await this.doFailureReportingOperation(async () => {
             this.view.setIsLoading(true);
-            followingUserToast = this.view.displayInfoMessage(
-                `Following ${displayedUser!.name}...`,
+            followActionUserToast = this.view.displayInfoMessage(
+                `${followActionText} ${displayedUser!.name}...`,
                 0
             );
 
-            const [followerCount, followeeCount] = await this.followService.follow(
-                authToken!,
-                displayedUser!
-            );
+            const [followerCount, followeeCount] = await doFollowAction();
 
-            this.view.setIsFollower(true);
+            this.view.setIsFollower(isFollower);
             this.view.setFollowerCount(followerCount);
             this.view.setFolloweeCount(followeeCount);
-        }, "follow user")
-        this.view.deleteMessage(followingUserToast);
-        this.view.setIsLoading(false);
+        }, operationDescription, () => {
+            this.view.deleteMessage(followActionUserToast);
+            this.view.setIsLoading(false);
+        })
+    }
+
+    public async followDisplayedUser(displayedUser: User, authToken: AuthToken): Promise<void> {
+        this.updateFollowing(displayedUser, "Following", true, "follow user", async () => {
+            return await this.followService.follow(authToken!, displayedUser!)
+        });
     };
 
     public async unfollowDisplayedUser(displayedUser: User, authToken: AuthToken): Promise<void> {
-        var unfollowingUserToast = "";
-        this.doFailureReportingOperation(async () => {
-            this.view.setIsLoading(true);
-            unfollowingUserToast = this.view.displayInfoMessage(
-                `Unfollowing ${displayedUser!.name}...`,
-                0
-            );
-
-            const [followerCount, followeeCount] = await this.followService.unfollow(
-                authToken!,
-                displayedUser!
-            );
-
-            this.view.setIsFollower(false);
-            this.view.setFollowerCount(followerCount);
-            this.view.setFolloweeCount(followeeCount);
-        }, "unfollow user")
-        this.view.deleteMessage(unfollowingUserToast);
-        this.view.setIsLoading(false);
+        this.updateFollowing(displayedUser, "Unfollowing", false, "unfollow user", async () => {
+            return await this.followService.unfollow(authToken!, displayedUser!)
+        });
     };
 }

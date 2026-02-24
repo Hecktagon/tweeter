@@ -1,4 +1,3 @@
-
 export interface View{
     displayErrorMessage: (message: string) => void
 }
@@ -19,13 +18,15 @@ export abstract class Presenter<V extends View> {
         return this._view;
     }
 
-    public async doFailureReportingOperation(operation: () => Promise<void>, operationDescription: string) {
+    public async doFailureReportingOperation(operation: () => Promise<void>, operationDescription: string, finallyOp?: () => void) {
         try {
             await operation();
         } catch (error) {
             this.view.displayErrorMessage(
                 `Failed to load ${operationDescription} because of exception: ${error}`,
             );
+        } finally {
+            finallyOp?.();
         }
     };
 }

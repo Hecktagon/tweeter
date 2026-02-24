@@ -13,8 +13,8 @@ export class AuthPresenter<T extends AuthView> extends Presenter<T> {
         super(view)
     }
 
-    protected doAuth(rememberMe: boolean, operationDescription: string, authenticate: () => Promise<[User, AuthToken]>) {
-        this.doFailureReportingOperation(async () => {
+    protected async doAuth(rememberMe: boolean, operationDescription: string, authenticate: () => Promise<[User, AuthToken]>) {
+        await this.doFailureReportingOperation(async () => {
             this.view.setIsLoading(true);
 
             const [user, authToken] = await authenticate();
@@ -22,8 +22,10 @@ export class AuthPresenter<T extends AuthView> extends Presenter<T> {
             this.view.updateUserInfo(user, user, authToken, rememberMe);
 
             this.view.navigate(`/feed/${user.alias}`);
-        }, operationDescription)
-        this.view.setIsLoading(false);
+        }, operationDescription, () => {
+            this.view.setIsLoading(false);
+        })
+        
     }
 
 

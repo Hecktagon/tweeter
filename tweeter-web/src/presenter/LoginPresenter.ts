@@ -15,7 +15,7 @@ export class LoginPresenter extends AuthPresenter<AuthView>{
     };
 
     public async doLogin(alias: string, password: string, rememberMe: boolean) {
-        this.doAuth(rememberMe, "log user in", async () => {
+        await this.doAuth(rememberMe, "log user in", async () => {
             return await this.userService.login(alias, password);
         })
     };

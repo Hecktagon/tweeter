@@ -1,7 +1,5 @@
 import { Buffer } from "buffer";
-import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../model.service/UserService";
-import { NavigateFunction } from "react-router-dom";
 import { AuthPresenter, AuthView } from "./AuthPresenter";
 
 export interface RegisterView extends AuthView {
@@ -35,7 +33,7 @@ export class RegisterPresenter extends AuthPresenter<RegisterView> {
     }
 
     public async doRegister(firstName: string, lastName: string, alias: string, password: string, imageFileExtension: string, imageBytes: Uint8Array, rememberMe: boolean) {
-        this.doAuth(rememberMe, "register user", async () => {
+        await this.doAuth(rememberMe, "register user", async () => {
             return await this.userService.register(firstName, lastName, alias, password, imageBytes, imageFileExtension);
         })
     }

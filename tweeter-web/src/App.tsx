@@ -15,13 +15,14 @@ import { FolloweePresenter } from "./presenter/FolloweePresenter";
 import { FollowerPresenter } from "./presenter/FollowerPresenter";
 import { FeedPresenter } from "./presenter/FeedPresenter";
 import { StoryPresenter } from "./presenter/StoryPresenter";
-import { LoginView, LoginPresenter } from "./presenter/LoginPresenter";
+import { LoginPresenter } from "./presenter/LoginPresenter";
 import { RegisterView, RegisterPresenter } from "./presenter/RegisterPresenter";
 import { Status, User } from "tweeter-shared";
 import { PagedItemView } from "./presenter/PagedItemPresenter";
 import ItemScroller from "./components/mainLayout/ItemScroller";
 import UserItem from "./components/userItem/UserItem";
 import StatusItem from "./components/statusItem/StatusItem";
+import { AuthView } from "./presenter/AuthPresenter";
 
 const App = () => {
   const { currentUser, authToken } = useUserInfo();
@@ -67,9 +68,9 @@ const UnauthenticatedRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/login" element={<Login presenterFactory={(view: LoginView) => new LoginPresenter(view)}/>} />
+      <Route path="/login" element={<Login presenterFactory={(view: AuthView) => new LoginPresenter(view)}/>} />
       <Route path="/register" element={<Register presenterFactory={(view: RegisterView) => new RegisterPresenter(view)}/>} />
-      <Route path="*" element={<Login presenterFactory={(view: LoginView) => new LoginPresenter(view)} originalUrl={location.pathname} />} />
+      <Route path="*" element={<Login presenterFactory={(view: AuthView) => new LoginPresenter(view)} />} />
     </Routes>
   );
 };

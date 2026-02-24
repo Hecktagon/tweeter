@@ -6,11 +6,11 @@ import AuthenticationFormLayout from "../AuthenticationFormLayout";
 import AuthenticationFields from "../authenticationFields/AuthenticationFields";
 import { useMessageActions } from "../../toaster/MessageHooks";
 import { useUserInfoActions } from "../../userInfo/UserInfoHooks";
-import { LoginPresenter, LoginView } from "../../../presenter/LoginPresenter";
+import { LoginPresenter } from "../../../presenter/LoginPresenter";
+import { AuthView } from "../../../presenter/AuthPresenter";
 
 interface Props {
-  originalUrl?: string;
-  presenterFactory: (view: LoginView) => LoginPresenter
+  presenterFactory: (view: AuthView) => LoginPresenter
 }
 
 const Login = (props: Props) => {
@@ -23,7 +23,7 @@ const Login = (props: Props) => {
   const { updateUserInfo } = useUserInfoActions();
   const { displayErrorMessage } = useMessageActions();
 
-  const listener: LoginView = {
+  const listener: AuthView = {
     setIsLoading: setIsLoading,
     updateUserInfo: updateUserInfo,
     navigate: navigate,
@@ -36,7 +36,7 @@ const Login = (props: Props) => {
   }
 
   const loginOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {
-    presenterRef.current!.attemptLogin(event.key, alias, password, rememberMe, props.originalUrl!)
+    presenterRef.current!.attemptLogin(event.key, alias, password, rememberMe)
   };
 
   const inputFieldFactory = () => {
@@ -65,7 +65,7 @@ const Login = (props: Props) => {
       setRememberMe={setRememberMe}
       submitButtonDisabled={() => presenterRef.current!.checkSubmitButtonStatus(alias, password)}
       isLoading={isLoading}
-      submit={() => presenterRef.current!.doLogin(alias, password, rememberMe, props.originalUrl!)}
+      submit={() => presenterRef.current!.doLogin(alias, password, rememberMe)}
     />
   );
 };

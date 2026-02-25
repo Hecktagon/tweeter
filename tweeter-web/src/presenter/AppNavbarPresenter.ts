@@ -15,10 +15,14 @@ export class AppNavbarPresenter extends Presenter<AppNavbarView> {
         super(view)
     }
 
+    public get service(){
+        return this.userService
+    }
+
     public async logOut(authToken: AuthToken) {
         const loggingOutToastId = this.view.displayInfoMessage("Logging Out...", 0);
         await this.doFailureReportingOperation(async () => {
-            await this.userService.logout(authToken!);
+            await this.service.logout(authToken!);
 
             this.view.deleteMessage(loggingOutToastId);
             this.view.clearUserInfo();

@@ -3,6 +3,7 @@ import { AppNavbarPresenter, AppNavbarView } from "../../src/presenter/AppNavbar
 import { anything, capture, instance, mock, spy, verify, when } from "@typestrong/ts-mockito"
 import { UserService } from "../../src/model.service/UserService"
 
+
 describe("AppNavbarPresenter", () => {
     let mockNavbarView: AppNavbarView;
     let navbarPresenter: AppNavbarPresenter;

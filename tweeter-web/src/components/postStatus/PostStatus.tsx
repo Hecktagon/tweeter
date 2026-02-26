@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo } from "../userInfo/UserInfoHooks";
 import { PostStatusPresenter, PostStatusView } from "../../presenter/PostStatusPresenter";
+import { AuthToken, User } from "tweeter-shared";
 
 interface Props {
   presenterFactory: (view: PostStatusView) => PostStatusPresenter
@@ -27,6 +28,10 @@ const PostStatus = (props: Props) => {
     presenterRef.current = props.presenterFactory(listener)
   }
 
+  const checkButtonStatusDisabled = (post: string, authToken: AuthToken, currentUser: User): boolean => {
+    return !post.trim() || !authToken || !currentUser;
+  };
+
   const submitPost = (event: React.MouseEvent) => {
     event.preventDefault();
     presenterRef.current!.submitPost(post, authToken!, currentUser!)
@@ -43,6 +48,7 @@ const PostStatus = (props: Props) => {
         <textarea
           className="form-control"
           id="postStatusTextArea"
+          aria-label="status-text"
           rows={10}
           placeholder="What's on your mind?"
           value={post}
@@ -56,7 +62,7 @@ const PostStatus = (props: Props) => {
           id="postStatusButton"
           className="btn btn-md btn-primary me-1"
           type="button"
-          disabled={presenterRef.current!.checkButtonStatus(post, authToken!, currentUser!)}
+          disabled={checkButtonStatusDisabled(post, authToken!, currentUser!)}
           style={{ width: "8em" }}
           onClick={submitPost}
         >
@@ -74,7 +80,7 @@ const PostStatus = (props: Props) => {
           id="clearStatusButton"
           className="btn btn-md btn-secondary"
           type="button"
-          disabled={presenterRef.current!.checkButtonStatus(post, authToken!, currentUser!)}
+          disabled={checkButtonStatusDisabled(post, authToken!, currentUser!)}
           onClick={clearPost}
         >
           Clear

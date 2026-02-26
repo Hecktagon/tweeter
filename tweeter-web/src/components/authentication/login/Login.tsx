@@ -9,6 +9,7 @@ import { useUserInfoActions } from "../../userInfo/UserInfoHooks";
 import { LoginPresenter } from "../../../presenter/LoginPresenter";
 import { AuthView } from "../../../presenter/AuthPresenter";
 
+
 interface Props {
   presenterFactory: (view: AuthView) => LoginPresenter
 }
@@ -35,8 +36,15 @@ const Login = (props: Props) => {
     presenterRef.current = props.presenterFactory(listener)
   }
 
+  const checkSubmitButtonStatus = (alias: string, password: string): boolean => {
+    return !alias || !password;
+  };
+
+
   const loginOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {
-    presenterRef.current!.attemptLogin(event.key, alias, password, rememberMe)
+    if (event.key == "Enter") {
+      presenterRef.current!.doLogin(alias, password, rememberMe)
+    }
   };
 
   const inputFieldFactory = () => {
@@ -63,7 +71,7 @@ const Login = (props: Props) => {
       inputFieldFactory={inputFieldFactory}
       switchAuthenticationMethodFactory={switchAuthenticationMethodFactory}
       setRememberMe={setRememberMe}
-      submitButtonDisabled={() => presenterRef.current!.checkSubmitButtonStatus(alias, password)}
+      submitButtonDisabled={() => checkSubmitButtonStatus(alias, password)}
       isLoading={isLoading}
       submit={() => presenterRef.current!.doLogin(alias, password, rememberMe)}
     />

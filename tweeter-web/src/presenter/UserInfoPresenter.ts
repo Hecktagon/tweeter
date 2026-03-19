@@ -1,6 +1,6 @@
 import { NavigateFunction } from "react-router-dom";
 import { User, AuthToken } from "tweeter-shared";
-import { FollowService } from "../model.service/FollowService";
+import { FollowService } from "../model/service/FollowService";
 import { MessageView, Presenter } from "./Presenter";
 
 

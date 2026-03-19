@@ -1,5 +1,5 @@
 import { Buffer } from "buffer";
-import { UserService } from "../model.service/UserService";
+import { UserService } from "../model/service/UserService";
 import { AuthPresenter, AuthView } from "./AuthPresenter";
 
 export interface RegisterView extends AuthView {

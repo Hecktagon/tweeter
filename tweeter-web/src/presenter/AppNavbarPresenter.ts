@@ -1,6 +1,6 @@
 import { NavigateFunction } from "react-router-dom";
 import { AuthToken } from "tweeter-shared";
-import { UserService } from "../model.service/UserService";
+import { UserService } from "../model/service/UserService";
 import { MessageView, Presenter} from "./Presenter";
 
 export interface AppNavbarView extends MessageView{

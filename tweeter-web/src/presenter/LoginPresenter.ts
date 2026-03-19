@@ -1,4 +1,4 @@
-import { UserService } from "../model.service/UserService";
+import { UserService } from "../model/service/UserService";
 import { AuthPresenter, AuthView } from "./AuthPresenter";
 
 export class LoginPresenter extends AuthPresenter<AuthView>{

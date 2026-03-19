@@ -1,6 +1,6 @@
 import { NavigateFunction } from "react-router-dom";
 import { AuthToken, User } from "tweeter-shared";
-import { UserService } from "../model.service/UserService";
+import { UserService } from "../model/service/UserService";
 import { Presenter, View } from "./Presenter";
 
 export interface UserNavigationHookView extends View {

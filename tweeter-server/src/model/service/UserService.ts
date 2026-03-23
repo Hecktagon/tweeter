@@ -34,12 +34,9 @@ export class UserService implements Service {
         lastName: string,
         alias: string,
         password: string,
-        userImageBytes: Uint8Array,
+        userImageBytes: string,
         imageFileExtension: string
     ): Promise<[UserDto, AuthDto]> {
-
-        const imageStringBase64: string =
-            Buffer.from(userImageBytes).toString("base64");
 
         const user = FakeData.instance.firstUser;
 

@@ -2,3 +2,4 @@
 /dist
 /nodejs
 /layer/nodejs
+/.aws-sam

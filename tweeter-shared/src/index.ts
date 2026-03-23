@@ -24,6 +24,7 @@ export type { LoginRequest } from "./model/net/request/LoginRequest";
 export type { LogoutRequest } from "./model/net/request/LogoutRequest";
 export type { PagedStatusRequest } from "./model/net/request/PagedStatusRequest";
 export type { RegisterRequest } from "./model/net/request/RegisterRequest";
+export type { TweeterRequest } from "./model/net/request/TweeterRequest";
 
 // Response Classes
 export type { PagedUserItemResponse } from "./model/net/response/PagedUserItemResponse";
@@ -36,6 +37,7 @@ export type { LoginResponse } from "./model/net/response/LoginResponse";
 export type { LogoutResponse } from "./model/net/response/LogoutResponse";
 export type { PagedStatusResponse } from "./model/net/response/PagedStatusResponse";
 export type { RegisterResponse } from "./model/net/response/RegisterResponse";
+export type { TweeterResponse } from "./model/net/response/TweeterResponse";
 
 // Other
 export { FakeData } from "./util/FakeData";

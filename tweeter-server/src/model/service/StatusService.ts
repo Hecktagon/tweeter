@@ -1,34 +1,46 @@
-import { AuthToken, Status, FakeData } from "tweeter-shared";
+import { Status, StatusDto, FakeData } from "tweeter-shared";
 import { Service } from "./Service";
 
-export class StatusService implements Service{
+export class StatusService implements Service {
     public async loadMoreFeedItems(
-        authToken: AuthToken,
+        token: string,
         userAlias: string,
         pageSize: number,
-        lastItem: Status | null
-    ): Promise<[Status[], boolean]> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-    };
+        lastItem: StatusDto | null
+    ): Promise<[StatusDto[], boolean]> {
+        return this.getFakeData(lastItem, pageSize);
+    }
 
     public async loadMoreStoryItems(
-        authToken: AuthToken,
+        token: string,
         userAlias: string,
         pageSize: number,
-        lastItem: Status | null
-    ): Promise<[Status[], boolean]> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-    };
+        lastItem: StatusDto | null
+    ): Promise<[StatusDto[], boolean]> {
+        return this.getFakeData(lastItem, pageSize);
+    }
 
     public async postStatus(
-        authToken: AuthToken,
-        newStatus: Status
+        token: string,
+        newStatus: StatusDto
     ): Promise<void> {
-        // Pause so we can see the logging out message. Remove when connected to the server
         await new Promise((f) => setTimeout(f, 2000));
 
-        // TODO: Call the server to post the status
-    };
+        // TODO: Call server
+    }
+
+    private async getFakeData(
+        lastItem: StatusDto | null,
+        pageSize: number
+    ): Promise<[StatusDto[], boolean]> {
+        const [items, hasMore] =
+            FakeData.instance.getPageOfStatuses(
+                lastItem ? Status.fromDto(lastItem) : null,
+                pageSize
+            );
+
+        const dtos: StatusDto[] = items.map((status) => status.dto);
+
+        return [dtos, hasMore];
+    }
 }

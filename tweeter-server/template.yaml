@@ -110,6 +110,7 @@ Resources:
 
           /follow:
             post:
+              description: Creates a follow relationship where the authenticated user follows another user.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -123,6 +124,7 @@ Resources:
 
           /unfollow:
             post:
+              description: Removes an existing follow relationship between the authenticated user and another user.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -136,6 +138,7 @@ Resources:
 
           /followee/list:
             post:
+              description: Retrieves a paginated list of users that the specified user is following.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -149,6 +152,7 @@ Resources:
 
           /follower/list:
             post:
+              description: Retrieves a paginated list of users that are following the specified user.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -162,6 +166,7 @@ Resources:
 
           /followee/count:
             post:
+              description: Retrieves the number of users that the specified user is following.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -175,6 +180,7 @@ Resources:
 
           /follower/count:
             post:
+              description: Retrieves the number of users that are following the specified user.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -188,6 +194,7 @@ Resources:
 
           /follower/status:
             post:
+              description: Determines whether a follow relationship exists between the authenticated user and another user.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -201,6 +208,7 @@ Resources:
 
           /feed/list:
             post:
+              description: Retrieves a paginated list of feed items.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -214,6 +222,7 @@ Resources:
 
           /story/list:
             post:
+              description: Retrieves a paginated list of stories.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -227,6 +236,7 @@ Resources:
 
           /status/post:
             post:
+              description: Creates a new status for the authenticated user.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -240,6 +250,7 @@ Resources:
 
           /user/get:
             post:
+              description: Retrieves the profile information for a specified user.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -253,6 +264,7 @@ Resources:
 
           /login:
             post:
+              description: Authenticates a user and creates a new session.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -266,6 +278,7 @@ Resources:
 
           /logout:
             post:
+              description: Logs out the authenticated user and invalidates the session.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -278,7 +291,8 @@ Resources:
               responses: *commonSwaggerResponses
 
           /register:
-            post:
+            post: 
+              description: Registers a new user.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -363,7 +377,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: followFunction
-      Handler: dist/lambda/follow/FollowLambda.handler
+      Handler: src/lambda/follow/FollowLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -377,7 +391,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: unfollowFunction
-      Handler: dist/lambda/follow/UnfollowLambda.handler
+      Handler: src/lambda/follow/UnfollowLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -391,7 +405,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: getFolloweesFunction
-      Handler: dist/lambda/follow/GetFolloweesLambda.handler
+      Handler: src/lambda/follow/GetFolloweesLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -405,7 +419,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: getFollowersFunction
-      Handler: dist/lambda/follow/GetFollowersLambda.handler
+      Handler: src/lambda/follow/GetFollowersLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -419,7 +433,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: getFolloweeCountFunction
-      Handler: dist/lambda/follow/GetFolloweeCountLambda.handler
+      Handler: src/lambda/follow/GetFolloweeCountLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -433,7 +447,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: getFollowerCountFunction
-      Handler: dist/lambda/follow/GetFollowerCountLambda.handler
+      Handler: src/lambda/follow/GetFollowerCountLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -447,7 +461,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: getFollowerStatusFunction
-      Handler: dist/lambda/follow/GetFollowerStatusLambda.handler
+      Handler: src/lambda/follow/GetFollowerStatusLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -465,7 +479,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: getFeedFunction
-      Handler: dist/lambda/status/GetFeedItemsLambda.handler
+      Handler: src/lambda/status/GetFeedItemsLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -479,7 +493,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: getStoryFunction
-      Handler: dist/lambda/status/GetStoryItemsLambda.handler
+      Handler: src/lambda/status/GetStoryItemsLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -493,7 +507,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: postStatusFunction
-      Handler: dist/lambda/status/PostStatusLambda.handler
+      Handler: src/lambda/status/PostStatusLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -511,7 +525,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: userGetFunction
-      Handler: dist/lambda/user/GetUserLambda.handler
+      Handler: src/lambda/user/GetUserLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -525,7 +539,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: loginFunction
-      Handler: dist/lambda/user/LoginLambda.handler
+      Handler: src/lambda/user/LoginLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -539,7 +553,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: logoutFunction
-      Handler: dist/lambda/user/LogoutLambda.handler
+      Handler: src/lambda/user/LogoutLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -553,7 +567,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: registerFunction
-      Handler: dist/lambda/user/RegisterLambda.handler
+      Handler: src/lambda/user/RegisterLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:

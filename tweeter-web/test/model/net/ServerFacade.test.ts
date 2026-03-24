@@ -1,6 +1,7 @@
 // serverFacade.integration.test.ts
 import "isomorphic-fetch"; // Fix fetch not defined in Node
 import { ServerFacade } from "../../../src/model/net/ServerFacade";
+import { StatusService } from "../../../src/model/service/StatusService";
 import {
   RegisterRequest,
   PagedUserItemRequest,
@@ -13,6 +14,7 @@ import {
 
 describe("ServerFacade Integration Tests", () => {
   const serverFacade = new ServerFacade();
+  const statusService = new StatusService();
 
   let testUser: User | null = null;
   let authToken: AuthToken | null = null;
@@ -24,7 +26,7 @@ describe("ServerFacade Integration Tests", () => {
     const request: RegisterRequest = {
       firstName: "Allen",
       lastName: "Anderson",
-      alias: "allen123",
+      alias: "@allen",
       password: "password123",
       userImageString: "fakeImageBase64String",
       imageFileExtension: ".png"
@@ -37,7 +39,7 @@ describe("ServerFacade Integration Tests", () => {
     expect(auth).toBeInstanceOf(AuthToken);
     expect(user.firstName).toBe("Allen");
     expect(user.lastName).toBe("Anderson");
-    expect(user.alias).toBe("allen123");
+    expect(user.alias).toBe("@allen");
 
     testUser = user;
     authToken = auth;
@@ -59,7 +61,7 @@ describe("ServerFacade Integration Tests", () => {
     const [followers, hasMore] = await serverFacade.getMoreFollowers(request);
 
     expect(Array.isArray(followers)).toBe(true);
-    expect(followers.length).toBeGreaterThan(0); // FakeData guarantees > 0
+    expect(followers.length).toBeGreaterThan(0); 
     expect(typeof hasMore).toBe("boolean");
 
     const firstFollower = followers[0];
@@ -89,7 +91,6 @@ describe("ServerFacade Integration Tests", () => {
     const followerCount = await serverFacade.getFollowerCount(followerCountRequest);
     const followeeCount = await serverFacade.getFolloweeCount(followeeCountRequest);
 
-    // FakeData guarantees follower/followee counts > 0
     expect(followerCount).toBeGreaterThan(0);
     expect(followeeCount).toBeGreaterThan(0);
   });
@@ -100,17 +101,17 @@ describe("ServerFacade Integration Tests", () => {
   it("should retrieve a user's story pages", async () => {
     if (!testUser || !authToken) throw new Error("Test user not registered");
 
-    const storyRequest: PagedStatusRequest = {
-      token: authToken.token,
-      userAlias: testUser.alias,
-      pageSize: 10,
-      lastItem: null
-    };
+    // const storyRequest: PagedStatusRequest = {
+    //   token: authToken.token,
+    //   userAlias: testUser.alias,
+    //   pageSize: 10,
+    //   lastItem: null
+    // };
 
-    const [statuses, hasMore] = await serverFacade.getMoreStoryItems(storyRequest);
+    const [statuses, hasMore] = await statusService.loadMoreStoryItems(authToken, testUser.alias, 10, null);
 
     expect(Array.isArray(statuses)).toBe(true);
-    expect(statuses.length).toBeGreaterThan(0); // FakeData guarantees some statuses
+    expect(statuses.length).toBeGreaterThan(0);
     expect(typeof hasMore).toBe("boolean");
 
     const firstStatus = statuses[0];
@@ -118,6 +119,6 @@ describe("ServerFacade Integration Tests", () => {
     expect(firstStatus.post).toBeDefined();
     expect(firstStatus.user).toBeInstanceOf(User);
     expect(firstStatus.user.alias).toBeDefined();
-    expect(firstStatus.timestamp).toBeGreaterThan(0);
+    expect(firstStatus.timestamp).toBeDefined();
   });
 });

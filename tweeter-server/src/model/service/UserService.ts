@@ -1,8 +1,14 @@
 import { Buffer } from "buffer";
 import { AuthToken, AuthDto, User, UserDto, FakeData } from "tweeter-shared";
 import { Service } from "./Service";
+import { DAOFactory } from "../dao/DAOFactory";
 
 export class UserService implements Service {
+    private _daoFactory: DAOFactory;
+
+    public constructor(daoFactory: DAOFactory) {
+        this._daoFactory = daoFactory;
+    }
 
     public async getUser(
         token: string,

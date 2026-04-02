@@ -1,10 +1,10 @@
 import { Status, StatusDto } from "tweeter-shared";
 import { Service } from "./Service";
-import { DAOFactory } from "../dao/DAOFactory";
-import { AuthDAO } from "../dao/AuthDAO";
-import { FeedDAO } from "../dao/FeedDAO";
-import { FollowDAO } from "../dao/FollowDAO";
-import { StatusDAO } from "../dao/StatusDAO";
+import { DAOFactory } from "../dao/interfaces/DAOFactory";
+import { AuthDAO } from "../dao/interfaces/AuthDAO";
+import { FeedDAO } from "../dao/interfaces/FeedDAO";
+import { FollowDAO } from "../dao/interfaces/FollowDAO";
+import { StatusDAO } from "../dao/interfaces/StatusDAO";
 import { FollowData } from "../domain/FollowData";
 
 export class StatusService implements Service {

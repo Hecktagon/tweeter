@@ -1,5 +1,5 @@
 import { User } from "tweeter-shared";
-import { UserData } from "../domain/UserData";
+import { UserData } from "../../domain/UserData";
 
 export interface UserDAO{
     readUser(alias: string): Promise<UserData | undefined>;

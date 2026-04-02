@@ -1,5 +1,5 @@
 import { Status } from "tweeter-shared";
-import { DataPage } from "../domain/DataPage";
+import { DataPage } from "../../domain/DataPage";
 
 export interface StatusDAO {
     createStatus(status: Status): Promise<void>;

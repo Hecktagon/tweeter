@@ -1,8 +1,8 @@
 import { User, UserDto } from "tweeter-shared";
-import { DAOFactory } from "../dao/DAOFactory";
-import { FollowDAO } from "../dao/FollowDAO";
-import { UserDAO } from "../dao/UserDAO";
-import { AuthDAO } from "../dao/AuthDAO";
+import { DAOFactory } from "../dao/interfaces/DAOFactory";
+import { FollowDAO } from "../dao/interfaces/FollowDAO";
+import { UserDAO } from "../dao/interfaces/UserDAO";
+import { AuthDAO } from "../dao/interfaces/AuthDAO";
 import { FollowData } from "../domain/FollowData";
 import { UserData } from "../domain/UserData";
 

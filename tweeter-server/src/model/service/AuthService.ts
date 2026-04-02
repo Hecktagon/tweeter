@@ -1,5 +1,5 @@
-import { AuthDAO } from "../dao/AuthDAO";
-import { DAOFactory } from "../dao/DAOFactory";
+import { AuthDAO } from "../dao/interfaces/AuthDAO";
+import { DAOFactory } from "../dao/interfaces/DAOFactory";
 
 export class AuthService {
     private _authDao: AuthDAO;
@@ -10,7 +10,7 @@ export class AuthService {
 
     async verifyAuth(token: string): Promise<void> {
         const authObject = await this._authDao.readAuth(token);
-        if (authObject === null || authObject.authToken === null || authObject.userHandle === null) {
+        if (authObject === null || authObject.authToken === null || authObject.userAlias === null) {
              throw new Error("unauthorized");
         }
     }

@@ -1,9 +1,9 @@
 import { AuthToken, AuthDto, User, UserDto } from "tweeter-shared";
 import { Service } from "./Service";
-import { DAOFactory } from "../dao/DAOFactory";
-import { AuthDAO } from "../dao/AuthDAO";
-import { ImageDAO } from "../dao/ImageDAO";
-import { UserDAO } from "../dao/UserDAO";
+import { DAOFactory } from "../dao/interfaces/DAOFactory";
+import { AuthDAO } from "../dao/interfaces/AuthDAO";
+import { ImageDAO } from "../dao/interfaces/ImageDAO";
+import { UserDAO } from "../dao/interfaces/UserDAO";
 import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
 import { UserData } from "../domain/UserData";

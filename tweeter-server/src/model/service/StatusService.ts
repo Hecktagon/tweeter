@@ -1,11 +1,10 @@
-import { Status, StatusDto, FakeData, User, Follow } from "tweeter-shared";
+import { Status, StatusDto } from "tweeter-shared";
 import { Service } from "./Service";
 import { DAOFactory } from "../dao/DAOFactory";
 import { AuthDAO } from "../dao/AuthDAO";
 import { FeedDAO } from "../dao/FeedDAO";
 import { FollowDAO } from "../dao/FollowDAO";
 import { StatusDAO } from "../dao/StatusDAO";
-import { UserDAO } from "../dao/UserDAO";
 import { FollowData } from "../domain/FollowData";
 
 export class StatusService implements Service {
@@ -28,7 +27,7 @@ export class StatusService implements Service {
         pageSize: number,
         lastItem: StatusDto | null
     ): Promise<[StatusDto[], boolean]> {
-        
+
         const feedItemsPage = await this._feedDao.readBatchFeedItems(userAlias, pageSize, lastItem ? Status.fromDto(lastItem)! : null);
 
         const dtos = feedItemsPage.values.map((s: Status) => s.dto);
@@ -68,11 +67,15 @@ export class StatusService implements Service {
 
         await this._statusDao.createStatus(status!);
 
+        let lastFollowerAlias: string | null = null;
+
         while (true) { // update feeds of followers in batches until all followers have been updated
-            const pageFollows = await this._followDao.readFollowers(alias!);
-            const pageFollowerAliases = pageFollows.values.map((f: FollowData) => f.followerAlias);
+            const pageFollows = await this._followDao.readBatchFollowers(alias!, 25, lastFollowerAlias);
+            const pageFollowerAliases = pageFollows.values.map((f: FollowData) => f.follower.alias);
 
             await this._feedDao.updateFollowerFeeds(pageFollowerAliases, status!);
+
+            lastFollowerAlias = pageFollows.values[pageFollows.values.length - 1].follower.alias;
 
             if (!pageFollows.hasMorePages) {
                 break;

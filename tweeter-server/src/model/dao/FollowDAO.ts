@@ -1,10 +1,12 @@
+import { User } from "tweeter-shared";
 import { DataPage } from "../domain/DataPage";
 import { FollowData } from "../domain/FollowData";
 
 export interface FollowDAO {
-    createFollow(followerHandle: string, followeeHandle: string): Promise<void>;
-    deleteFollow(followerHandle: string, followeeHandle: string): Promise<void>;
-    readFollowers(userHandle: string): Promise<DataPage<FollowData>>;
-    readFollowees(userHandle: string): Promise<DataPage<FollowData>>;
-    updateFollow(followerHandle: string, followeeHandle: string): Promise<void>;
+    createFollow(followData: FollowData): Promise<void>;
+    deleteFollow(followData: FollowData): Promise<void>;
+    readFollow(followData: FollowData): Promise<FollowData | undefined>;
+    readBatchFollowers(userHandle: string, pageSize: number, lastFollowerAlias: string | null): Promise<DataPage<FollowData>>;
+    readBatchFollowees(userHandle: string, pageSize: number, lastFolloweeAlias: string | null): Promise<DataPage<FollowData>>;
+    updateFollow(followData: FollowData): Promise<void>;
 }

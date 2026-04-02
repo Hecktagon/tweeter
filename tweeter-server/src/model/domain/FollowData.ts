@@ -1,9 +1,11 @@
-export class FollowData {
-    public followerAlias: string;
-    public followeeAlias: string;
+import { User } from "tweeter-shared";
 
-    public constructor(followerAlias: string, followeeAlias: string, followerName: string | undefined, followeeName: string | undefined) {
-        this.followerAlias = followerAlias
-        this.followeeAlias = followeeAlias
+export class FollowData {
+    public follower: User;
+    public followee: User;
+
+    constructor(follower: User, followee: User) {
+        this.follower = follower;
+        this.followee = followee;
     }
 }

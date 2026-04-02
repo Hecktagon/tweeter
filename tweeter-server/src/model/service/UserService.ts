@@ -1,4 +1,4 @@
-import { AuthToken, AuthDto, User, UserDto, FakeData } from "tweeter-shared";
+import { AuthToken, AuthDto, User, UserDto } from "tweeter-shared";
 import { Service } from "./Service";
 import { DAOFactory } from "../dao/DAOFactory";
 import { AuthDAO } from "../dao/AuthDAO";
@@ -6,15 +6,14 @@ import { ImageDAO } from "../dao/ImageDAO";
 import { UserDAO } from "../dao/UserDAO";
 import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
+import { UserData } from "../domain/UserData";
 
 export class UserService implements Service {
-    private _daoFactory: DAOFactory;
     private _authDao: AuthDAO;
     private _userDao: UserDAO;
     private _imageDao: ImageDAO;
 
     public constructor(daoFactory: DAOFactory) {
-        this._daoFactory = daoFactory;
         this._authDao = daoFactory.authDAO();
         this._userDao = daoFactory.userDAO();
         this._imageDao = daoFactory.imageDAO();
@@ -33,31 +32,31 @@ export class UserService implements Service {
         await this._authDao.deleteAuth(token);
     }
 
-public async login(
-    alias: string,
-    password: string
-): Promise<[UserDto, AuthDto]> {
-    if (!alias || !password) {
-        throw new Error("bad-request: missing alias or password");
+    public async login(
+        alias: string,
+        password: string
+    ): Promise<[UserDto, AuthDto]> {
+        if (!alias || !password) {
+            throw new Error("bad-request: missing alias or password");
+        }
+
+        const userObject = await this._userDao.readUser(alias);
+        const user = userObject ? userObject.user : null;
+        if (!user || !userObject) {
+            throw new Error("unauthorized: invalid alias or password");
+        }
+
+        const passwordMatches = await bcrypt.compare(password, userObject.password);
+        if (!passwordMatches) {
+            throw new Error("unauthorized: invalid alias or password");
+        }
+
+        const auth = new AuthToken(randomBytes(32).toString("hex"), Date.now());
+
+        await this._authDao.createAuth(auth, alias);
+
+        return [user.dto, auth.dto];
     }
-
-    const userObject = await this._userDao.readUser(alias);
-    const user = userObject ? userObject.user : null; 
-    if (!user || !userObject) {
-        throw new Error("unauthorized: invalid alias or password");
-    }
-
-    const passwordMatches = await bcrypt.compare(password, userObject.password);
-    if (!passwordMatches) {
-        throw new Error("unauthorized: invalid alias or password");
-    }
-
-    const auth = new AuthToken(randomBytes(32).toString("hex"), Date.now());
-
-    await this._authDao.createAuth(auth, alias);
-
-    return [user.dto, auth.dto];
-}
 
     public async register(
         firstName: string,
@@ -76,13 +75,13 @@ public async login(
         if (takenUser !== undefined) {
             throw new Error("bad-request: user already exists");
         }
-        
+
         const salt = await bcrypt.genSalt(10);
         const hashed = await bcrypt.hash(password, salt);
 
         const imageUrl = await this._imageDao.putImage(`${alias}.${imageFileExtension}`, userImageBytes);
         const user = new User(firstName, lastName, alias, imageUrl);
-        await this._userDao.createUser(user, hashed, 0, 0);
+        await this._userDao.createUser(new UserData(user, hashed, 0, 0));
 
         const auth = new AuthToken(randomBytes(32).toString("hex"), Date.now());
         await this._authDao.createAuth(auth, alias);

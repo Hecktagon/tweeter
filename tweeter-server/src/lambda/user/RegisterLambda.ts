@@ -1,11 +1,12 @@
 import { RegisterRequest, RegisterResponse } from "tweeter-shared";
 import { UserService } from "../../model/service/UserService";
+import { DAOFactoryConfig } from "../../config/DAOFactoryConfig";
 
 export const handler = async (
     request: RegisterRequest
 ): Promise<RegisterResponse> => {
 
-    const service = new UserService();
+    const service = new UserService(DAOFactoryConfig.getDAOFactory());
 
     const [user, auth] = await service.register(
         request.firstName,

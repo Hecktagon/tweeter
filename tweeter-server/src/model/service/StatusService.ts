@@ -1,12 +1,28 @@
 import { Status, StatusDto, FakeData } from "tweeter-shared";
 import { Service } from "./Service";
 import { DAOFactory } from "../dao/DAOFactory";
+import { AuthDAO } from "../dao/AuthDAO";
+import { FeedDAO } from "../dao/FeedDAO";
+import { FollowDAO } from "../dao/FollowDAO";
+import { StatusDAO } from "../dao/StatusDAO";
+import { UserDAO } from "../dao/UserDAO";
 
 export class StatusService implements Service {
     private _daoFactory: DAOFactory;
+    private _feedDao: FeedDAO;
+    private _statusDao: StatusDAO;
+    private _followDao: FollowDAO;
+    private _authDao: AuthDAO;
+    private _userDao: UserDAO;
+
 
     public constructor(daoFactory: DAOFactory) {
         this._daoFactory = daoFactory;
+        this._feedDao = daoFactory.feedDAO();
+        this._statusDao = daoFactory.statusDAO();
+        this._followDao = daoFactory.followDAO();
+        this._authDao = daoFactory.authDAO();
+        this._userDao = daoFactory.userDAO();
     }
 
     public async loadMoreFeedItems(

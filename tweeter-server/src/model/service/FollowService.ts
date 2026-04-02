@@ -1,11 +1,20 @@
 import { AuthToken, User, FakeData, UserDto } from "tweeter-shared";
 import { DAOFactory } from "../dao/DAOFactory";
+import { FollowDAO } from "../dao/FollowDAO";
+import { UserDAO } from "../dao/UserDAO";
+import { AuthDAO } from "../dao/AuthDAO";
 
 export class FollowService{
     private _daoFactory: DAOFactory;
+    private _followDao: FollowDAO;
+    private _authDao: AuthDAO;
+    private _userDao: UserDAO;
 
     public constructor(daoFactory: DAOFactory) {
         this._daoFactory = daoFactory;
+        this._followDao = daoFactory.followDAO();
+        this._authDao = daoFactory.authDAO();
+        this._userDao = daoFactory.userDAO();
     }
     
     public async loadMoreFollowers(

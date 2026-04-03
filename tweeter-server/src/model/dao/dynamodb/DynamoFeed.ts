@@ -3,17 +3,21 @@ import {
     PutCommand,
     QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { Status } from "tweeter-shared";
+import { Status, User } from "tweeter-shared";
 import { DataPage } from "../../domain/DataPage";
 import { FeedDAO } from "../interfaces/FeedDAO";
 
 export class DynamoFeed implements FeedDAO {
     private tableName = "feed";
-    private userAliasAttr = "user_alias"; // follower
+    private userAliasAttr = "user_alias"; // partition key (feed owner)
+    private firstNameAttr = "first_name";
+    private lastNameAttr = "last_name";
+    private posterAliasAttr = "poster_alias"; // poster's alias
+    private imageUrlAttr = "image_url";
     private timestampAttr = "timestamp";
     private postAttr = "post";
 
-    constructor(private client: DynamoDBDocumentClient) {}
+    constructor(private client: DynamoDBDocumentClient) { }
 
     async updateFollowerFeeds(followerAliases: string[], status: Status): Promise<void> {
         const requests = followerAliases.map(alias =>
@@ -24,7 +28,6 @@ export class DynamoFeed implements FeedDAO {
                 })
             )
         );
-
         await Promise.all(requests);
     }
 
@@ -38,9 +41,9 @@ export class DynamoFeed implements FeedDAO {
             Limit: pageSize,
             ExclusiveStartKey: lastItem
                 ? {
-                      [this.userAliasAttr]: alias,
-                      [this.timestampAttr]: lastItem.timestamp,
-                  }
+                    [this.userAliasAttr]: alias,
+                    [this.timestampAttr]: lastItem.timestamp,
+                }
                 : undefined,
             ScanIndexForward: false,
         };
@@ -54,7 +57,11 @@ export class DynamoFeed implements FeedDAO {
 
     private toItem(status: Status, feedOwner: string) {
         return {
-            [this.userAliasAttr]: feedOwner,
+            [this.userAliasAttr]: feedOwner,             // partition key: whose feed this is
+            [this.posterAliasAttr]: status.user.alias,   // the actual poster
+            [this.firstNameAttr]: status.user.firstName,
+            [this.lastNameAttr]: status.user.lastName,
+            [this.imageUrlAttr]: status.user.imageUrl,
             [this.timestampAttr]: status.timestamp,
             [this.postAttr]: status.post,
         };
@@ -63,7 +70,12 @@ export class DynamoFeed implements FeedDAO {
     private fromItem(item: any): Status {
         return new Status(
             item[this.postAttr],
-            item[this.userAliasAttr],
+            new User(
+                item[this.firstNameAttr],
+                item[this.lastNameAttr],
+                item[this.posterAliasAttr],  // poster's alias
+                item[this.imageUrlAttr]
+            ),
             item[this.timestampAttr]
         );
     }

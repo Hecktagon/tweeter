@@ -212,7 +212,12 @@ export class ServerFacade {
             LoginResponse
         >(request, "/login");
 
-        if (response.success && response.user && response.auth) {
+        if (response.success) {
+
+            if (!response.user || !response.auth) {
+                throw new Error("Failed to retrieve user or auth.");
+            }
+
             const user = User.fromDto(response.user);
             const auth = AuthToken.fromDto(response.auth);
 

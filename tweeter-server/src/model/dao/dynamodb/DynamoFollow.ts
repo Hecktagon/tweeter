@@ -1,3 +1,4 @@
+import { IndexDocument$ } from "@aws-sdk/client-s3";
 import { DataPage } from "../../domain/DataPage";
 import { FollowData } from "../../domain/FollowData";
 import { FollowDAO } from "../interfaces/FollowDAO";
@@ -64,27 +65,30 @@ export class DynamoFollow implements FollowDAO {
             },
         };
         const output = await this.client.send(new GetCommand(params));
+
+        if (!output.Item) {
+            return undefined;
+        }
+
         return this.mapItemToFollow(output.Item);
     }
 
     async readBatchFollowers(userAlias: string, pageSize: number, lastFollowerAlias: string | null): Promise<DataPage<FollowData>> {
-        const params = {
-            KeyConditionExpression: this.followeeAliasAttr + " = :followeeAlias",
+        const params: any = {
+            KeyConditionExpression: this.followeeAliasAttr + " = :followeeAlias",  // query by followee
             ExpressionAttributeValues: {
                 ":followeeAlias": userAlias,
             },
             TableName: this.tableName,
-            IndexName: this.indexName,
+            IndexName: this.indexName,   // use the alternate index
             Limit: pageSize,
-            ExclusiveStartKey:
-                lastFollowerAlias === undefined
-                    ? undefined
-                    : {
-                        [this.followeeAliasAttr]: userAlias,
-                        [this.followerAliasAttr]: lastFollowerAlias,
-                    },
+        };
+        if (lastFollowerAlias) {
+            params.ExclusiveStartKey = {
+                [this.followeeAliasAttr]: userAlias,
+                [this.followerAliasAttr]: lastFollowerAlias,
+            };
         }
-
         const items: FollowData[] = [];
         const data = await this.client.send(new QueryCommand(params));
         const hasMorePages = data.LastEvaluatedKey !== undefined;
@@ -97,20 +101,20 @@ export class DynamoFollow implements FollowDAO {
     }
 
     async readBatchFollowees(userAlias: string, pageSize: number, lastFolloweeAlias: string | null): Promise<DataPage<FollowData>> {
-        const params = {
+        const params: any = {
             KeyConditionExpression: this.followerAliasAttr + " = :followerAlias",
             ExpressionAttributeValues: {
                 ":followerAlias": userAlias,
             },
             TableName: this.tableName,
             Limit: pageSize,
-            ExclusiveStartKey:
-                lastFolloweeAlias === undefined
-                    ? undefined
-                    : {
-                        [this.followeeAliasAttr]: lastFolloweeAlias,
-                        [this.followerAliasAttr]: userAlias,
-                    },
+        };
+
+        if (lastFolloweeAlias) {  // handles both null and undefined
+            params.ExclusiveStartKey = {
+                [this.followerAliasAttr]: userAlias,
+                [this.followeeAliasAttr]: lastFolloweeAlias,
+            };
         }
 
         const items: FollowData[] = [];

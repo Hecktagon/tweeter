@@ -55,4 +55,10 @@ export class DynamoAuth implements AuthDAO {
             })
         );
     }
+
+    async updateAuthTimestamp(token: string, timestamp: number): Promise<void> {
+        const authData = await this.readAuth(token);
+        if (!authData) return;
+        await this.createAuth(new AuthToken(token, timestamp), authData.userAlias);
+    }
 }

@@ -71,6 +71,10 @@ export class StatusService implements Service {
 
         while (true) { // update feeds of followers in batches until all followers have been updated
             const pageFollows = await this._followDao.readBatchFollowers(alias!, 25, lastFollowerAlias);
+            if (pageFollows.values.length === 0) {
+                break;
+            }
+
             const pageFollowerAliases = pageFollows.values.map((f: FollowData) => f.follower.alias);
 
             await this._feedDao.updateFollowerFeeds(pageFollowerAliases, status!);

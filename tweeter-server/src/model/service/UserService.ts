@@ -71,7 +71,7 @@ export class UserService implements Service {
             throw new Error("bad-request: missing required fields");
         }
 
-        const takenUser = this._userDao.readUser(alias);
+        const takenUser = await this._userDao.readUser(alias);
         if (takenUser !== undefined) {
             throw new Error("bad-request: user already exists");
         }

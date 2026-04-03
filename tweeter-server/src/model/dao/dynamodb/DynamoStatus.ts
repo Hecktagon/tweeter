@@ -4,13 +4,16 @@ import {
     QueryCommand,
     DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { Status } from "tweeter-shared";
+import { Status, User } from "tweeter-shared";
 import { DataPage } from "../../domain/DataPage";
 import { StatusDAO } from "../interfaces/StatusDAO";
 
 export class DynamoStatus implements StatusDAO {
     private tableName = "statuses";
+    private firstNameAttr = "first_name";
+    private lastNameAttr = "last_name";
     private userAliasAttr = "user_alias";
+    private imageUrlAttr = "image_url";
     private timestampAttr = "timestamp";
     private postAttr = "post";
 
@@ -61,7 +64,10 @@ export class DynamoStatus implements StatusDAO {
 
     private toItem(status: Status) {
         return {
+            [this.firstNameAttr]: status.user.firstName,
+            [this.lastNameAttr]: status.user.lastName,
             [this.userAliasAttr]: status.user.alias,
+            [this.imageUrlAttr]: status.user.imageUrl,
             [this.timestampAttr]: status.timestamp,
             [this.postAttr]: status.post,
         };
@@ -70,7 +76,12 @@ export class DynamoStatus implements StatusDAO {
     private fromItem(item: any): Status {
         return new Status(
             item[this.postAttr],
-            item[this.userAliasAttr],
+            new User(
+                item[this.firstNameAttr],
+                item[this.lastNameAttr],
+                item[this.userAliasAttr],
+                item[this.imageUrlAttr]
+            ),
             item[this.timestampAttr]
         );
     }

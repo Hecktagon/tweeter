@@ -1,4 +1,4 @@
-import { Status } from "tweeter-shared";
+import { Status, User } from "tweeter-shared";
 import { DataPage } from "../../domain/DataPage";
 
 export interface FeedDAO {

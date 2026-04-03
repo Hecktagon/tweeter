@@ -31,24 +31,16 @@ export class ClientCommunicator {
 
     console.log(`Fetching '${url}' with params '${JSON.stringify(params)}'`);
 
-    try {
-      const resp: Response = await fetch(url, params);
+    const resp: Response = await fetch(url, params).catch(() => {
+      throw new Error(`Client communicator ${params.method} failed: network error`);
+    });
 
-      if (resp.ok) {
-        // Be careful with the return type here. resp.json() returns Promise<any> which means there is no type checking on response.
-        const response: RES = await resp.json();
-        return response;
-      } else {
-        const error = await resp.json();
-        throw new Error(error.errorMessage);
-      }
-    } catch (error) {
-      console.error(error);
-      throw new Error(
-        `Client communicator ${params.method} failed:\n${
-          (error as Error).message
-        }`
-      );
+    if (resp.ok) {
+      const response: RES = await resp.json();
+      return response;
+    } else {
+      const error = await resp.json();
+      throw new Error(error.error ?? error.errorMessage);
     }
   }
 

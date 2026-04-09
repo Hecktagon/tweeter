@@ -6,3 +6,5 @@ export class DAOFactoryConfig {
         return new DynamoFactory();
     }
 }
+
+export const daoFactory: DAOFactory = DAOFactoryConfig.getDAOFactory();

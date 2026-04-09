@@ -20,6 +20,7 @@ export class DynamoFeed implements FeedDAO {
     constructor(private client: DynamoDBDocumentClient) { }
 
     async updateFollowerFeeds(followerAliases: string[], status: Status): Promise<void> {
+        // TODO: change this to a batch update, right now it's doing an iterative write.
         const requests = followerAliases.map(alias =>
             this.client.send(
                 new PutCommand({
@@ -30,6 +31,7 @@ export class DynamoFeed implements FeedDAO {
         );
         await Promise.all(requests);
     }
+
 
     async readBatchFeedItems(alias: string, pageSize: number, lastItem: Status | null): Promise<DataPage<Status>> {
         const params = {

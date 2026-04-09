@@ -87,6 +87,14 @@ export class StatusService implements Service {
         }
     }
 
+    public async sqsBatchFollowers(){ // gets followers in batches and sends them and the post to SQS for batch feed updates
+
+    }
+
+    public async sqsBatchUpdateFeeds(){ // triggered by SQS messages, performs batch feed updates
+
+    }
+
     // private async getFakeData(
     //     lastItem: StatusDto | null,
     //     pageSize: number

@@ -76,25 +76,6 @@ export class StatusService implements Service {
         };
 
         await this.sendToQueue(payload, this._postStatusQueueUrl);
-
-        let lastFollowerAlias: string | null = null;
-
-        while (true) { // update feeds of followers in batches until all followers have been updated
-            const pageFollows = await this._followDao.readBatchFollowers(alias!, 25, lastFollowerAlias);
-            if (pageFollows.values.length === 0) {
-                break;
-            }
-
-            const pageFollowerAliases = pageFollows.values.map((f: FollowData) => f.follower.alias);
-
-            await this._feedDao.updateFollowerFeeds(pageFollowerAliases, status!);
-
-            lastFollowerAlias = pageFollows.values[pageFollows.values.length - 1].follower.alias;
-
-            if (!pageFollows.hasMorePages) {
-                break;
-            }
-        }
     }
 
     public async sqsBatchFollowers(status: Status) { // gets followers in batches and sends them and the post to SQS for batch feed updates
@@ -118,8 +99,8 @@ export class StatusService implements Service {
         }
     }
 
-    public async sqsBatchUpdateFeeds() { // triggered by SQS messages, performs batch feed updates
-
+    public async sqsBatchUpdateFeeds(status: Status, followerAliases: string[]) { // triggered by SQS messages, performs batch feed updates
+        this._feedDao.updateFollowerFeeds(followerAliases, status);
     }
 
     private async sendToQueue(payload: any, queueUrl: string): Promise<void> {

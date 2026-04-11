@@ -345,16 +345,16 @@ Resources:
   # SQS Queues  (This will become relevant in Milestone 4. For M3, leave this section commented out.)
   #
 
-    PostStatusQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: PostStatusQueue
 
-    UpdateFeedQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: UpdateFeedQueue
+  PostStatusQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PostStatusQueue
 
+  UpdateFeedQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: UpdateFeedQueue
 
     # MyQueue:
     #   Type: AWS::SQS::Queue
@@ -536,8 +536,12 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: FollowFetcherFunction
-      Handler: src/lambda/status/FollowFetcherLambda.handler
+      Handler: src/lambda/status/sqs/FollowFetcherLambda.handler
       Policies: *commonPolicies
+      Environment:
+        Variables:
+          POST_STATUS_QUEUE_URL: !GetAtt PostStatusQueue.QueueUrl
+          UPDATE_FEED_QUEUE_URL: !GetAtt UpdateFeedQueue.QueueUrl
       Events:
         SQSTrigger:
           Type: SQS
@@ -549,14 +553,32 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: UpdateFeedsFunction
-      Handler: src/lambda/status/UpdateFeedsLambda.handler
+      Handler: src/lambda/status/sqs/UpdateFeedsLambda.handler
       Policies: *commonPolicies
+      Environment:
+        Variables:
+          POST_STATUS_QUEUE_URL: !GetAtt PostStatusQueue.QueueUrl
+          UPDATE_FEED_QUEUE_URL: !GetAtt UpdateFeedQueue.QueueUrl
       Events:
         SQSTrigger:
           Type: SQS
           Properties:
             Queue: !GetAtt UpdateFeedQueue.Arn
             Enabled: true
+
+  #   MyQueueFunction:
+  #     Type: AWS::Serverless::Function
+  #     Properties:
+  #       FunctionName: MyQueueFunction
+  #       Handler: <PATH TO LAMBDA HANDLER>
+  #       Policies: *commonPolicies
+  #       Events:
+  #         SQSTrigger:
+  #           Type: SQS
+  #           Properties:
+  #             Queue: !GetAtt MyQueue.Arn
+  #             Enabled: true
+
 
   # =========================
   # USER LAMBDAS

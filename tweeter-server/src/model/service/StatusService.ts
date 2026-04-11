@@ -100,7 +100,7 @@ export class StatusService implements Service {
     }
 
     public async sqsBatchUpdateFeeds(status: Status, followerAliases: string[]) { // triggered by SQS messages, performs batch feed updates
-        this._feedDao.updateFollowerFeeds(followerAliases, status);
+        await this._feedDao.updateFollowerFeeds(followerAliases, status);
     }
 
     private async sendToQueue(payload: any, queueUrl: string): Promise<void> {

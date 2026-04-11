@@ -6,12 +6,16 @@ import { FeedDAO } from "../dao/interfaces/FeedDAO";
 import { FollowDAO } from "../dao/interfaces/FollowDAO";
 import { StatusDAO } from "../dao/interfaces/StatusDAO";
 import { FollowData } from "../domain/FollowData";
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 export class StatusService implements Service {
     private _feedDao: FeedDAO;
     private _statusDao: StatusDAO;
     private _followDao: FollowDAO;
     private _authDao: AuthDAO;
+    private _postStatusQueueUrl: string = "placeholderURL";
+    private _updateFeedQueueUrl: string = "placeholderURL";
+    private sqsClient = new SQSClient();
 
 
     public constructor(daoFactory: DAOFactory) {
@@ -67,6 +71,12 @@ export class StatusService implements Service {
 
         await this._statusDao.createStatus(status!);
 
+        const payload = {
+            status: status!.toJson(),
+        };
+
+        await this.sendToQueue(payload, this._postStatusQueueUrl);
+
         let lastFollowerAlias: string | null = null;
 
         while (true) { // update feeds of followers in batches until all followers have been updated
@@ -87,12 +97,43 @@ export class StatusService implements Service {
         }
     }
 
-    public async sqsBatchFollowers(){ // gets followers in batches and sends them and the post to SQS for batch feed updates
+    public async sqsBatchFollowers(status: Status) { // gets followers in batches and sends them and the post to SQS for batch feed updates
+        let lastFollowerAlias: string | null = null;
+        while (true) { // update feeds of followers in batches until all followers have been updated
+            const pageFollows = await this._followDao.readBatchFollowers(status.user.alias!, 25, lastFollowerAlias);
+            if (pageFollows.values.length === 0) {
+                break;
+            }
+
+            const pageFollowerAliases = pageFollows.values.map((f: FollowData) => f.follower.alias);
+
+            lastFollowerAlias = pageFollows.values[pageFollows.values.length - 1].follower.alias;
+
+            const payload = {
+                status: status.toJson(),
+                aliases: pageFollowerAliases
+            };
+
+            await this.sendToQueue(payload, this._updateFeedQueueUrl);
+        }
+    }
+
+    public async sqsBatchUpdateFeeds() { // triggered by SQS messages, performs batch feed updates
 
     }
 
-    public async sqsBatchUpdateFeeds(){ // triggered by SQS messages, performs batch feed updates
+    private async sendToQueue(payload: any, queueUrl: string): Promise<void> {
+        const params = {
+            MessageBody: JSON.stringify(payload),
+            QueueUrl: queueUrl,
+        };
 
+        try {
+            const data = await this.sqsClient.send(new SendMessageCommand(params));
+            console.log("Success, message sent. MessageID:", data.MessageId);
+        } catch (err) {
+            throw Error(`bad-request: got error ${err}`);
+        }
     }
 
     // private async getFakeData(

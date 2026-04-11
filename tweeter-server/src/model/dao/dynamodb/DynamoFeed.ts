@@ -1,4 +1,5 @@
 import {
+    BatchWriteCommand,
     DynamoDBDocumentClient,
     PutCommand,
     QueryCommand,
@@ -20,16 +21,19 @@ export class DynamoFeed implements FeedDAO {
     constructor(private client: DynamoDBDocumentClient) { }
 
     async updateFollowerFeeds(followerAliases: string[], status: Status): Promise<void> {
-        // TODO: change this to a batch update, right now it's doing an iterative write.
-        const requests = followerAliases.map(alias =>
-            this.client.send(
-                new PutCommand({
-                    TableName: this.tableName,
-                    Item: this.toItem(status, alias),
-                })
-            )
+        const requests = followerAliases.map(alias => ({
+            PutRequest: {
+                Item: this.toItem(status, alias),
+            },
+        }));
+
+        await this.client.send(
+            new BatchWriteCommand({
+                RequestItems: {
+                    [this.tableName]: requests,
+                },
+            })
         );
-        await Promise.all(requests);
     }
 
 

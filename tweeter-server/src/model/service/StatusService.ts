@@ -13,8 +13,8 @@ export class StatusService implements Service {
     private _statusDao: StatusDAO;
     private _followDao: FollowDAO;
     private _authDao: AuthDAO;
-    private _postStatusQueueUrl: string = "placeholderURL";
-    private _updateFeedQueueUrl: string = "placeholderURL";
+    private _postStatusQueueUrl: string = process.env.POST_STATUS_QUEUE_URL!;
+    private _updateFeedQueueUrl: string = process.env.UPDATE_FEED_QUEUE_URL!;
     private sqsClient = new SQSClient();
 
 

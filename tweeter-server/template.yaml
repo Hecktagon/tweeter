@@ -345,10 +345,21 @@ Resources:
   # SQS Queues  (This will become relevant in Milestone 4. For M3, leave this section commented out.)
   #
 
-  #   MyQueue:
-  #     Type: AWS::SQS::Queue
-  #     Properties:
-  #       QueueName: MyQueue
+    PostStatusQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: PostStatusQueue
+
+    UpdateFeedQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: UpdateFeedQueue
+
+
+    # MyQueue:
+    #   Type: AWS::SQS::Queue
+    #   Properties:
+    #     QueueName: MyQueue
 
 
   #
@@ -509,6 +520,10 @@ Resources:
       FunctionName: postStatusFunction
       Handler: src/lambda/status/PostStatusLambda.handler
       Policies: *commonPolicies
+      Environment:
+        Variables:
+          POST_STATUS_QUEUE_URL: !GetAtt PostStatusQueue.QueueUrl
+          UPDATE_FEED_QUEUE_URL: !GetAtt UpdateFeedQueue.QueueUrl
       Events:
         PostApi:
           Type: Api
@@ -516,6 +531,32 @@ Resources:
             RestApiId: !Ref tweeterApi
             Path: /status/post
             Method: POST
+
+  FollowFetcherFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: FollowFetcherFunction
+      Handler: src/lambda/status/FollowFetcherLambda.handler
+      Policies: *commonPolicies
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt PostStatusQueue.Arn
+            Enabled: true
+
+  UpdateFeedsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: UpdateFeedsFunction
+      Handler: src/lambda/status/UpdateFeedsLambda.handler
+      Policies: *commonPolicies
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt UpdateFeedQueue.Arn
+            Enabled: true
 
   # =========================
   # USER LAMBDAS

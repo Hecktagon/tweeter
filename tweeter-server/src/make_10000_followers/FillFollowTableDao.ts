@@ -10,7 +10,7 @@ export class FillFollowTableDao {
   //
   // Modify these values as needed to match your follow table.
   //
-  private readonly tableName = "tweeter_follow";
+  private readonly tableName = "follows";
   private readonly followerAliasAttribute = "follower_alias";
   private readonly followeeAliasAttribute = "followee_alias";
 

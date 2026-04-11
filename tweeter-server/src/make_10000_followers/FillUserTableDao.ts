@@ -13,13 +13,13 @@ export class FillUserTableDao {
   //
   // Modify these values as needed to match your user table.
   //
-  private readonly tableName = "tweeter_user";
+  private readonly tableName = "users";
   private readonly userAliasAttribute = "alias";
   private readonly userFirstNameAttribute = "first_name";
   private readonly userLastNameAttribute = "last_name";
   private readonly userImageUrlAttribute = "image_url";
-  private readonly passwordHashAttribute = "password_hash";
-  private readonly followeeCountAttribute = "followee_count";
+  private readonly passwordHashAttribute = "password";
+  private readonly followeeCountAttribute = "following_count";
   private readonly followerCountAttribute = "follower_count";
 
   private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
@@ -109,7 +109,7 @@ export class FillUserTableDao {
     }
   }
 
-  async increaseFollowersCount(alias: string, count: number): Promise {
+  async increaseFollowersCount(alias: string, count: number): Promise<boolean> {
     const params = {
       TableName: this.tableName,
       Key: { [this.userAliasAttribute]: alias },

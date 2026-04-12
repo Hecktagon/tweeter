@@ -19,7 +19,7 @@ describe("Post Status Integration Test", () => {
 
   beforeAll(async () => {
     // Step 1: Login a real user via the service
-    const [user, auth] = await userService.login("@allen", "password123");
+    const [user, auth] = await userService.login("@bb", "b");
     currentUser = user;
     authToken = auth;
   });

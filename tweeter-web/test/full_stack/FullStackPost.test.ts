@@ -22,7 +22,7 @@ describe("Post Status Integration Test", () => {
     const [user, auth] = await userService.login("@bb", "b");
     currentUser = user;
     authToken = auth;
-  });
+  }, 10000);
 
   beforeEach(() => {
     capturedInfoMessages = [];
@@ -74,5 +74,5 @@ describe("Post Status Integration Test", () => {
     expect(matchingStatus!.user.lastName).toBe(currentUser.lastName);
     expect(matchingStatus!.timestamp).toBeDefined();
     expect(matchingStatus!.post).toBe(testPost);
-  });
+  }, 15000);
 });

@@ -99,6 +99,8 @@ public async sqsBatchFollowers(status: Status) {
 
         // collect but don't await yet
         queuePromises.push(this.sendToQueue(payload, this._updateFeedQueueUrl));
+
+        new Promise(resolve => setTimeout(resolve, 500)); // small throttling delay to avoid overwhelming the queue
     }
 
     // fire all queue sends in parallel

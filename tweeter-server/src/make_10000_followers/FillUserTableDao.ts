@@ -5,6 +5,7 @@ import {
   BatchWriteCommandInput,
   BatchWriteCommandOutput,
   UpdateCommand,
+  GetCommand,
 } from "@aws-sdk/lib-dynamodb";
 import * as bcrypt from "bcryptjs";
 import { User } from "tweeter-shared";
@@ -75,6 +76,26 @@ export class FillUserTableDao {
     };
   }
 
+  async getUser(alias: string): Promise<User> {
+    const params = {
+      TableName: this.tableName,
+      Key: { [this.userAliasAttribute]: alias },
+    };
+
+    const output = await this.client.send(new GetCommand(params));
+
+    if (!output.Item) {
+      throw new Error(`User ${alias} not found`);
+    }
+
+    return new User(
+      output.Item[this.userFirstNameAttribute],
+      output.Item[this.userLastNameAttribute],
+      output.Item[this.userAliasAttribute],
+      output.Item[this.userImageUrlAttribute]
+    );
+  }
+
   private async putUnprocessedItems(
     resp: BatchWriteCommandOutput,
     params: BatchWriteCommandInput,
@@ -99,8 +120,7 @@ export class FillUserTableDao {
       }
 
       console.log(
-        `Attempt ${attempts}. Processing ${
-          Object.keys(resp.UnprocessedItems).length
+        `Attempt ${attempts}. Processing ${Object.keys(resp.UnprocessedItems).length
         } unprocessed users.`,
       );
 

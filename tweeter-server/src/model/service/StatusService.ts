@@ -78,26 +78,32 @@ export class StatusService implements Service {
         await this.sendToQueue(payload, this._postStatusQueueUrl);
     }
 
-    public async sqsBatchFollowers(status: Status) { // gets followers in batches and sends them and the post to SQS for batch feed updates
-        let lastFollowerAlias: string | null = null;
-        while (true) { // update feeds of followers in batches until all followers have been updated
-            const pageFollows = await this._followDao.readBatchFollowers(status.user.alias!, 25, lastFollowerAlias);
-            if (pageFollows.values.length === 0) {
-                break;
-            }
+public async sqsBatchFollowers(status: Status) {
+    let lastFollowerAlias: string | null = null;
+    const queuePromises: Promise<void>[] = [];
+    const statusJson = status.toJson(); // serialize once
 
-            const pageFollowerAliases = pageFollows.values.map((f: FollowData) => f.follower.alias);
-
-            lastFollowerAlias = pageFollows.values[pageFollows.values.length - 1].follower.alias;
-
-            const payload = {
-                status: status.toJson(),
-                aliases: pageFollowerAliases
-            };
-
-            await this.sendToQueue(payload, this._updateFeedQueueUrl);
+    while (true) {
+        const pageFollows = await this._followDao.readBatchFollowers(status.user.alias!, 25, lastFollowerAlias);
+        if (pageFollows.values.length === 0) {
+            break;
         }
+
+        const pageFollowerAliases = pageFollows.values.map((f: FollowData) => f.follower.alias);
+        lastFollowerAlias = pageFollows.values[pageFollows.values.length - 1].follower.alias;
+
+        const payload = {
+            status: statusJson,
+            aliases: pageFollowerAliases
+        };
+
+        // collect but don't await yet
+        queuePromises.push(this.sendToQueue(payload, this._updateFeedQueueUrl));
     }
+
+    // fire all queue sends in parallel
+    await Promise.all(queuePromises);
+}
 
     public async sqsBatchUpdateFeeds(status: Status, followerAliases: string[]) { // triggered by SQS messages, performs batch feed updates
         await this._feedDao.updateFollowerFeeds(followerAliases, status);

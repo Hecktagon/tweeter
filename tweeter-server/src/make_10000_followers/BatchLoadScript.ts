@@ -26,11 +26,14 @@ const fillFollowTableDao = new FillFollowTableDao();
 main();
 
 async function main() {
+
+  const followee = await fillUserTableDao.getUser(mainUsername); 
+
   console.log("Creating users");
   await createUsers(0);
 
   console.log("Creating follows");
-  await createFollows(0);
+  await createFollows(0, followee);
 
   console.log("Increasing the followee's followers count");
   await fillUserTableDao.increaseFollowersCount(
@@ -77,21 +80,25 @@ function createUserList(createdUserCount: number) {
   return users;
 }
 
-async function createFollows(createdFollowsCount: number) {
-  const followList = aliasList.slice(
-    createdFollowsCount,
-    createdFollowsCount + batchSize,
-  );
+async function createFollows(createdFollowsCount: number, followee: User) {
+    const followerList = aliasList
+        .slice(createdFollowsCount, createdFollowsCount + batchSize)
+        .map((alias, i) => new User(
+            `${baseFollowerFirstName}_${createdFollowsCount + i + 1}`,
+            `${baseFollowerLastName}_${createdFollowsCount + i + 1}`,
+            alias,
+            followerImageUrl
+        ));
 
-  await fillFollowTableDao.createFollows(mainUsername, followList);
+    await fillFollowTableDao.createFollows(followee, followerList);
 
-  createdFollowsCount += batchSize;
+    createdFollowsCount += batchSize;
 
-  if (createdFollowsCount % 1000 == 0) {
-    console.log(`Created ${createdFollowsCount} follows`);
-  }
+    if (createdFollowsCount % 1000 == 0) {
+        console.log(`Created ${createdFollowsCount} follows`);
+    }
 
-  if (createdFollowsCount < numbFollowsToCreate) {
-    await createFollows(createdFollowsCount);
-  }
+    if (createdFollowsCount < numbFollowsToCreate) {
+        await createFollows(createdFollowsCount, followee);
+    }
 }

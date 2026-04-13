@@ -5,6 +5,7 @@ import {
   BatchWriteCommandOutput,
   DynamoDBDocumentClient,
 } from "@aws-sdk/lib-dynamodb";
+import { User } from "tweeter-shared";
 
 export class FillFollowTableDao {
   //
@@ -13,20 +14,23 @@ export class FillFollowTableDao {
   private readonly tableName = "follows";
   private readonly followerAliasAttribute = "follower_alias";
   private readonly followeeAliasAttribute = "followee_alias";
+  private readonly followerFirstNameAttribute = "follower_firstname";
+  private readonly followerLastNameAttribute = "follower_lastname";
+  private readonly followerImageUrlAttribute = "follower_imageurl";
+  private readonly followeeFirstNameAttribute = "followee_firstname";
+  private readonly followeeLastNameAttribute = "followee_lastname";
+  private readonly followeeImageUrlAttribute = "followee_imageurl";
 
   private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
 
-  async createFollows(followeeAlias: string, followerAliasList: string[]) {
-    if (followerAliasList.length == 0) {
+  async createFollows(followee: User, followerList: User[]) {
+    if (followerList.length == 0) {
       console.log("Zero followers to batch write");
       return;
     } else {
       const params = {
         RequestItems: {
-          [this.tableName]: this.createPutFollowRequestItems(
-            followeeAlias,
-            followerAliasList,
-          ),
+          [this.tableName]: this.createPutFollowRequestItems(followee, followerList),
         },
       };
 
@@ -34,26 +38,27 @@ export class FillFollowTableDao {
         const response = await this.client.send(new BatchWriteCommand(params));
         await this.putUnprocessedItems(response, params);
       } catch (err) {
-        throw new Error(
-          `Error while batch writing follows with params: ${params} \n${err}`,
-        );
+        throw new Error(`Error while batch writing follows with params: ${params} \n${err}`);
       }
     }
   }
 
-  private createPutFollowRequestItems(
-    followeeAlias: string,
-    followerAliasList: string[],
-  ) {
-    return followerAliasList.map((followerAlias) =>
-      this.createPutFollowRequest(followerAlias, followeeAlias),
+  private createPutFollowRequestItems(followee: User, followerList: User[]) {
+    return followerList.map((follower) =>
+      this.createPutFollowRequest(follower, followee)
     );
   }
 
-  private createPutFollowRequest(followerAlias: string, followeeAlias: string) {
+  private createPutFollowRequest(follower: User, followee: User) {
     const item = {
-      [this.followerAliasAttribute]: followerAlias,
-      [this.followeeAliasAttribute]: followeeAlias,
+      [this.followerAliasAttribute]: follower.alias,
+      [this.followerFirstNameAttribute]: follower.firstName,
+      [this.followerLastNameAttribute]: follower.lastName,
+      [this.followerImageUrlAttribute]: follower.imageUrl,
+      [this.followeeAliasAttribute]: followee.alias,
+      [this.followeeFirstNameAttribute]: followee.firstName,
+      [this.followeeLastNameAttribute]: followee.lastName,
+      [this.followeeImageUrlAttribute]: followee.imageUrl,
     };
 
     return {
@@ -62,7 +67,6 @@ export class FillFollowTableDao {
       },
     };
   }
-
   private async putUnprocessedItems(
     resp: BatchWriteCommandOutput,
     params: BatchWriteCommandInput,
@@ -87,8 +91,7 @@ export class FillFollowTableDao {
       }
 
       console.log(
-        `Attempt ${attempts}. Processing ${
-          Object.keys(resp.UnprocessedItems).length
+        `Attempt ${attempts}. Processing ${Object.keys(resp.UnprocessedItems).length
         } unprocessed follow items.`,
       );
 
